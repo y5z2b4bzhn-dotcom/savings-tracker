@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Progressive savings tracker to save 100M LAK in 365 days">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiMTAwTSBMQUsgU2F2aW5ncyBUcmFja2VyIiwic2hvcnRfbmFtZSI6IlNhdmluZ3MiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzY2N2VlYSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDcmVjdCBmaWxsPSclMjM2NjdlZWEnIHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyByeD0nMTUnLyUzRSUzQ3RleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyUzRSVGMCU5RiU5MiVCMCUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100' rx='15'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle'%3E💰%3C/text%3E%3C/svg%3E">
+    <title>100M LAK Savings Tracker - PWA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            padding-bottom: 30px;
+        }
+        
+        .install-banner {
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .install-banner.show {
+            display: flex;
+        }
+        
+        .install-btn {
+            background: white;
+            color: #10b981;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 15px;
+            border-radius: 12px;
+            border: 3px solid;
+        }
+        
+        .stat-card.green {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .stat-card.blue {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .stat-card.purple {
+            background: #e9d5ff;
+            border-color: #a855f7;
+        }
+        
+        .stat-card.red {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .stat-label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #a855f7;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            border-left: 4px solid;
+            font-size: 0.9em;
+        }
+        
+        .alert.warning {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert.success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        
+        .alert-icon {
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+        
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .alert-text {
+            font-size: 0.95em;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .select-input {
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95em;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .info-list {
+            list-style: none;
+            color: #1e40af;
+            font-size: 0.85em;
+        }
+        
+        .info-list li {
+            margin: 6px 0;
+            padding-left: 18px;
+            position: relative;
+        }
+        
+        .info-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .boxes-info {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .boxes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .box {
+            aspect-ratio: 1;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6px;
+        }
+        
+        .box:active {
+            transform: scale(0.95);
+        }
+        
+        .box.checked {
+            background: #10b981;
+            border-color: #059669;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .box-number {
+            font-size: 0.65em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .box-amount {
+            font-size: 0.7em;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .box-check {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8em;
+            color: white;
+            opacity: 0.3;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            text-align: center;
+        }
+        
+        .summary-card {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .summary-label {
+            font-size: 0.7em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .summary-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .summary-card:nth-child(1) .summary-value { color: #6b7280; }
+        .summary-card:nth-child(2) .summary-value { color: #10b981; }
+        .summary-card:nth-child(3) .summary-value { color: #f59e0b; }
+        .summary-card:nth-child(4) .summary-value { color: #3b82f6; }
+        
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .subtitle {
+                font-size: 1.1em;
+            }
+            
+            .stat-value {
+                font-size: 1.8em;
+            }
+            
+            .boxes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 10px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="install-banner" id="installBanner">
+        <span>📱 Install this app on your device!</span>
+        <button class="install-btn" id="installButton">Install</button>
+    </div>
+    
+    <div class="container">
+        <h1>
+            <span>💰</span>
+            <span>365-Day Savings</span>
+        </h1>
+        <p class="subtitle">Save 100,000,000 LAK by December 31, 2026</p>
+        
+        <div class="stats-grid" id="statsGrid"></div>
+        <div id="alertBox"></div>
+        
+        <div class="controls">
+            <input 
+                type="number" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Find amount (e.g., 280000)"
+            >
+            <select class="select-input" id="sortSelect">
+                <option value="id">By Day</option>
+                <option value="amount">By Amount</option>
+                <option value="status">By Status</option>
+            </select>
+            <button class="btn btn-primary" onclick="exportCSV()">
+                <span>📥</span>
+                <span>Export</span>
+            </button>
+            <button class="btn btn-danger" onclick="resetAll()">
+                <span>🔄</span>
+                <span>Reset</span>
+            </button>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-title">📖 How to use:</div>
+            <ul class="info-list">
+                <li>365 days from 10,000 to 1,094,520 LAK</li>
+                <li>Search for your amount and tick any box</li>
+                <li>Tick multiple boxes on good days</li>
+                <li>Get alerts if behind schedule</li>
+                <li>Works 100% offline after install</li>
+            </ul>
+        </div>
+        
+        <div class="boxes-info" id="boxesInfo"></div>
+        <div class="boxes-grid" id="boxesGrid"></div>
+        
+        <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.add('show');
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBanner.classList.remove('show');
+            }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZXZlbnQpIHsKICBzZWxmLnNraXBXYWl0aW5nKCk7Cn0pOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1bmN0aW9uKGV2ZW50KSB7CiAgZXZlbnQucmVzcG9uZFdpdGgoCiAgICBjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkudGhlbihmdW5jdGlvbihyZXNwb25zZSkgewogICAgICByZXR1cm4gcmVzcG9uc2UgfHwgZmV0Y2goZXZlbnQucmVxdWVzdCk7CiAgICB9KQogICk7Cn0pOw==');
+        }
+
+        const TARGET = 100000000;
+        const START_DATE = new Date('2026-01-06');
+        const END_DATE = new Date('2026-12-31');
+        const totalDays = Math.ceil((END_DATE - START_DATE) / (1000 * 60 * 60 * 24));
+        const dailyTarget = TARGET / totalDays;
+
+        let boxes = [];
+        let filterAmount = '';
+        let sortBy = 'id';
+
+        function generateBoxes() {
+            const firstAmount = 10000;
+            const lastAmount = Math.round((TARGET * 2 / 365) - firstAmount);
+            const increment = (lastAmount - firstAmount) / 364;
+            
+            const newBoxes = [];
+            for (let i = 1; i <= 365; i++) {
+                const amount = Math.round(firstAmount + (increment * (i - 1)));
+                const roundedAmount = Math.round(amount / 10) * 10;
+                
+                newBoxes.push({
+                    id: i,
+                    day: i,
+                    amount: roundedAmount,
+                    checked: false,
+                    date: null
+                });
+            }
+            
+            const currentTotal = newBoxes.reduce((sum, box) => sum + box.amount, 0);
+            const difference = TARGET - currentTotal;
+            
+            if (difference !== 0) {
+                const adjustment = Math.floor(difference / 365);
+                const remainder = difference % 365;
+                
+                newBoxes.forEach((box, index) => {
+                    box.amount += adjustment;
+                    if (index < remainder) {
+                        box.amount += 10;
+                    }
+                });
+            }
+            
+            return newBoxes;
+        }
+
+        function loadBoxes() {
+            const saved = localStorage.getItem('savingsBoxesProgressive365');
+            boxes = saved ? JSON.parse(saved) : generateBoxes();
+        }
+
+        function saveBoxes() {
+            localStorage.setItem('savingsBoxesProgressive365', JSON.stringify(boxes));
+        }
+
+        function formatLAK(amount) {
+            return new Intl.NumberFormat('lo-LA').format(amount) + ' ₭';
+        }
+
+        function getStats() {
+            const totalSaved = boxes.reduce((sum, box) => box.checked ? sum + box.amount : sum, 0);
+            const remaining = TARGET - totalSaved;
+            const progress = (totalSaved / TARGET) * 100;
+            
+            const today = new Date();
+            const daysPassed = Math.ceil((today - START_DATE) / (1000 * 60 * 60 * 24));
+            const expectedSavings = dailyTarget * daysPassed;
+            const savingsDifference = totalSaved - expectedSavings;
+            const isBehindSchedule = savingsDifference < 0;
+            
+            return {
+                totalSaved,
+                remaining,
+                progress,
+                daysPassed,
+                expectedSavings,
+                savingsDifference,
+                isBehindSchedule
+            };
+        }
+
+        function renderStats() {
+            const stats = getStats();
+            const statsGrid = document.getElementById('statsGrid');
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card green">
+                    <div class="stat-label">Total Saved</div>
+                    <div class="stat-value">${formatLAK(stats.totalSaved)}</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value">${formatLAK(stats.remaining)}</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Progress</div>
+                    <div class="stat-value">${stats.progress.toFixed(1)}%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(stats.progress, 100)}%"></div>
+                    </div>
+                </div>
+                <div class="stat-card ${stats.isBehindSchedule ? 'red' : 'green'}">
+                    <div class="stat-label">Status</div>
+                    <div class="stat-value">${stats.isBehindSchedule ? 'Behind' : 'On Track'}</div>
+                    <div style="font-size: 0.8em; margin-top: 4px;">
+                        ${stats.isBehindSchedule ? '-' : '+'}${formatLAK(Math.abs(stats.savingsDifference))}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAlert() {
+            const stats = getStats();
+            const alertBox = document.getElementById('alertBox');
+            
+            if (stats.isBehindSchedule) {
+                alertBox.innerHTML = `
+                    <div class="alert warning">
+                        <div class="alert-icon">⚠️</div>
+                        <div>
+                            <div class="alert-title">Behind schedule!</div>
+                            <div class="alert-text">
+                                Need ${formatLAK(Math.abs(stats.savingsDifference))} more to catch up
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (stats.totalSaved > 0) {
+                alertBox.innerHTML = `
+                    <div class="alert success">
+                        <div class="alert-icon">✅</div>
+                        <div>
+                            <div class="alert-title">Great job!</div>
+                            <div class="alert-text">
+                                ${formatLAK(stats.savingsDifference)} ahead of schedule
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertBox.innerHTML = '';
+            }
+        }
+
+        function getFilteredBoxes() {
+            let filtered = [...boxes];
+            
+            if (filterAmount) {
+                const amount = parseInt(filterAmount);
+                filtered = filtered.filter(box => 
+                    box.amount >= amount - 20000 && box.amount <= amount + 20000
+                );
+            }
+            
+            filtered.sort((a, b) => {
+                if (sortBy === 'amount') return a.amount - b.amount;
+                if (sortBy === 'status') return (b.checked ? 1 : 0) - (a.checked ? 1 : 0);
+                return a.id - b.id;
+            });
+            
+            return filtered;
+        }
+
+        function renderBoxes() {
+            const filtered = getFilteredBoxes();
+            const boxesGrid = document.getElementById('boxesGrid');
+            const boxesInfo = document.getElementById('boxesInfo');
+            
+            const minAmount = Math.min(...boxes.map(b => b.amount));
+            const maxAmount = Math.max(...boxes.map(b => b.amount));
+            
+            boxesInfo.innerHTML = `
+                Showing ${filtered.length} of 365 boxes 
+                <span style="color: #10b981; font-weight: bold;">
+                    (${formatLAK(minAmount)} → ${formatLAK(maxAmount)})
+                </span>
+            `;
+            
+            boxesGrid.innerHTML = filtered.map(box => `
+                <div class="box ${box.checked ? 'checked' : ''}" onclick="toggleBox(${box.id})">
+                    <div class="box-number">Day ${box.day}</div>
+                    <div class="box-amount">${formatLAK(box.amount)}</div>
+                    ${box.checked ? '<div class="box-check">✓</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderSummary() {
+            const stats = getStats();
+            const checked = boxes.filter(b => b.checked).length;
+            const unchecked = boxes.filter(b => !b.checked).length;
+            const daysLeft = Math.max(0, totalDays - stats.daysPassed);
+            
+            const summaryGrid = document.getElementById('summaryGrid');
+            summaryGrid.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-label">Total Days</div>
+                    <div class="summary-value">365</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Saved</div>
+                    <div class="summary-value">${checked}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Remaining</div>
+                    <div class="summary-value">${unchecked}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Days Left</div>
+                    <div class="summary-value">${daysLeft}</div>
+                </div>
+            `;
+        }
+
+        function render() {
+            renderStats();
+            renderAlert();
+            renderBoxes();
+            renderSummary();
+        }
+
+        function toggleBox(id) {
+            const box = boxes.find(b => b.id === id);
+            if (box) {
+                box.checked = !box.checked;
+                box.date = box.checked ? new Date().toISOString() : null;
+                saveBoxes();
+                render();
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all savings?')) {
+                boxes = generateBoxes();
+                saveBoxes();
+                render();
+            }
+        }
+
+        function exportCSV() {
+            const headers = ['Day', 'Amount (LAK)', 'Status', 'Date Saved'];
+            const rows = boxes.map(box => [
+                box.day,
+                box.amount,
+                box.checked ? 'Checked' : 'Unchecked',
+                box.date ? new Date(box.date).toLocaleDateString() : ''
+            ]);
+            
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'savings_tracker.csv';
+            a.click();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterAmount = e.target.value;
+            renderBoxes();
+        });
+
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            sortBy = e.target.value;
+            renderBoxes();
+        });
+
+        loadBoxes();
+        render();
+    </script>
+</body>
+</html>
