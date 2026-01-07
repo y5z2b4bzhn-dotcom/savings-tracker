@@ -4,213 +4,258 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#667eea">
-    <meta name="description" content="Progressive savings tracker to save 100M LAK in 365 days">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiMTAwTSBMQUsgU2F2aW5ncyBUcmFja2VyIiwic2hvcnRfbmFtZSI6IlNhdmluZ3MiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzY2N2VlYSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDcmVjdCBmaWxsPSclMjM2NjdlZWEnIHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyByeD0nMTUnLyUzRSUzQ3RleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyUzRSVGMCU5RiU5MiVCMCUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
-    <title>Cloud 100M LAK Savings Tracker</title>
+    <title>100M LAK Cloud Tracker</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-            padding-bottom: 30px;
+            min-height: 100vh; padding: 10px; padding-bottom: 40px;
         }
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1400px; margin: 0 auto; background: white;
+            border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        h1 { color: #333; font-size: 1.5em; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;}
-        .subtitle { color: #666; margin-bottom: 20px; font-size: 0.9em; }
-        
-        /* Sync Status Bar */
-        .sync-status {
-            background: #f3f4f6;
-            padding: 8px 12px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 0.8em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        h1 { color: #333; font-size: 1.5em; display: flex; align-items: center; gap: 8px; }
+        .subtitle { color: #666; margin-bottom: 15px; font-size: 0.9em; }
+
+        /* Sync Status */
+        .sync-bar {
+            background: #f3f4f6; padding: 10px; border-radius: 10px;
+            margin-bottom: 15px; font-size: 0.8em; display: flex;
+            justify-content: space-between; align-items: center; border-left: 4px solid #667eea;
         }
 
+        /* Stats Cards */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { padding: 15px; border-radius: 12px; border: 3px solid; }
         .stat-card.green { background: #d1fae5; border-color: #10b981; }
         .stat-card.blue { background: #dbeafe; border-color: #3b82f6; }
         .stat-card.purple { background: #e9d5ff; border-color: #a855f7; }
         .stat-card.red { background: #fee2e2; border-color: #ef4444; }
-        .stat-value { font-size: 1.3em; font-weight: bold; color: #333; }
-        .progress-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 10px; margin-top: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #a855f7; transition: width 0.3s; }
-        
+        .stat-label { font-size: 0.75em; color: #666; margin-bottom: 4px; }
+        .stat-value { font-size: 1.3em; font-weight: bold; }
+
+        /* Alerts */
+        .alert { padding: 12px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid; }
+        .alert.warning { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        .alert.success { background: #d1fae5; border-color: #10b981; color: #065f46; }
+
+        /* Controls */
         .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
         .search-input { flex: 1; min-width: 150px; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .btn-primary { background: #3b82f6; color: white; }
-        .btn-danger { background: #ef4444; color: white; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; color: white; }
+        .btn-primary { background: #3b82f6; }
+        .btn-danger { background: #ef4444; }
 
-        .boxes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; }
+        /* Boxes */
+        .boxes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; margin-bottom: 25px; }
         .box { 
             aspect-ratio: 1; border: 2px solid #d1d5db; border-radius: 8px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            cursor: pointer; transition: all 0.2s; background: white;
+            cursor: pointer; transition: 0.2s; background: white; position: relative;
         }
         .box.checked { background: #10b981; border-color: #059669; color: white; transform: scale(1.05); }
-        .box-amount { font-size: 0.7em; font-weight: bold; }
-        
-        /* Loading Overlay */
-        #loading {
+        .box-number { font-size: 0.6em; margin-bottom: 2px; }
+        .box-amount { font-size: 0.75em; font-weight: bold; }
+
+        /* Summary */
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+        .summary-card { background: #f9fafb; padding: 10px; border-radius: 8px; }
+        .summary-label { font-size: 0.7em; color: #666; }
+        .summary-value { font-size: 1.1em; font-weight: bold; }
+
+        #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); display: flex; justify-content: center;
-            align-items: center; z-index: 1000; font-weight: bold;
+            background: rgba(255,255,255,0.9); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
         }
     </style>
 </head>
 <body>
-    <div id="loading">☁️ Connecting to Cloud...</div>
 
-    <div class="container">
-        <h1><span>💰</span> 365-Day Cloud Savings</h1>
-        <p class="subtitle">Goal: 100,000,000 LAK | Syncing across all devices</p>
+<div id="loading-overlay">
+    <h2>☁️ Connecting to Cloud...</h2>
+    <p>Check your Firebase URL if this stays long.</p>
+</div>
 
-        <div class="sync-status">
-            <span id="sync-key-display">Sync Key: Loading...</span>
-            <span id="cloud-indicator">● Offline</span>
-        </div>
+<div class="container">
+    <h1><span>💰</span> 365-Day Savings</h1>
+    <p class="subtitle">Save 100,000,000 LAK by Dec 31, 2026</p>
 
-        <div class="stats-grid" id="statsGrid"></div>
-        
-        <div class="controls">
-            <input type="number" class="search-input" id="searchInput" placeholder="Search Amount...">
-            <button class="btn btn-primary" onclick="exportCSV()">Export</button>
-            <button class="btn btn-danger" onclick="resetAll()">Reset</button>
-        </div>
-
-        <div class="boxes-grid" id="boxesGrid"></div>
+    <div class="sync-bar">
+        <span id="key-display">Key: ...</span>
+        <span id="status-indicator" style="font-weight: bold; color: orange;">● Offline</span>
     </div>
 
-    <script>
-        // --- CONFIGURATION ---
-       const DB_URL = "https://m-lak-savings-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/";
-        const TARGET = 100000000;
-        const START_DATE = new Date('2026-01-01');
+    <div class="stats-grid" id="statsGrid"></div>
+    <div id="alertBox"></div>
+    
+    <div class="controls">
+        <input type="number" class="search-input" id="searchInput" placeholder="Search Amount (e.g. 50000)">
+        <button class="btn btn-primary" onclick="exportCSV()">📥 Export</button>
+        <button class="btn btn-danger" onclick="resetAll()">🔄 Reset</button>
+    </div>
 
-        let boxes = [];
-        let syncKey = localStorage.getItem('savings_sync_key');
+    <div class="boxes-grid" id="boxesGrid"></div>
 
-        // Initialize Sync Key
-        if (!syncKey) {
-            syncKey = prompt("Enter a Sync Name (e.g. 'my-savings') to load data, or leave blank to generate one:");
-            if (!syncKey) syncKey = 'LAK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-            localStorage.setItem('savings_sync_key', syncKey);
+    <div class="summary-grid" id="summaryGrid"></div>
+</div>
+
+<script>
+    // --- 1. CONFIGURATION ---
+    // PASTE YOUR URL BELOW:
+    const DB_URL = "https://m-lak-savings-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    
+    const TARGET = 100000000;
+    const START_DATE = new Date('2026-01-01');
+    const END_DATE = new Date('2026-12-31');
+    const totalDays = 365;
+    const dailyTarget = TARGET / totalDays;
+
+    let boxes = [];
+    let syncKey = localStorage.getItem('savings_sync_key');
+
+    // Initialize Sync Key
+    if (!syncKey) {
+        syncKey = prompt("Enter a Sync Name (e.g. 'peter-savings'):");
+        if (!syncKey) syncKey = 'LAK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        localStorage.setItem('savings_sync_key', syncKey);
+    }
+    document.getElementById('key-display').innerText = "Key: " + syncKey;
+
+    // --- 2. LOGIC ---
+    function generateBoxes() {
+        const arr = [];
+        const first = 10000;
+        const last = (TARGET * 2 / 365) - first;
+        const increment = (last - first) / 364;
+        for (let i = 1; i <= 365; i++) {
+            let amt = Math.round((first + (increment * (i - 1))) / 1000) * 1000;
+            arr.push({ id: i, amount: amt, checked: false });
         }
-        document.getElementById('sync-key-display').innerText = "Key: " + syncKey;
+        return arr;
+    }
 
-        // 1. Generate empty boxes
-        function generateBoxes() {
-            const arr = [];
-            const first = 10000;
-            const last = (TARGET * 2 / 365) - first;
-            const increment = (last - first) / 364;
-            for (let i = 1; i <= 365; i++) {
-                let amt = Math.round((first + (increment * (i - 1))) / 1000) * 1000;
-                arr.push({ id: i, amount: amt, checked: false });
-            }
-            return arr;
+    async function loadData() {
+        try {
+            const res = await fetch(`${DB_URL}/savings/${syncKey}.json`);
+            const data = await res.json();
+            boxes = data || generateBoxes();
+            document.getElementById('status-indicator').style.color = "#10b981";
+            document.getElementById('status-indicator').innerText = "● Online";
+            render();
+        } catch (e) {
+            console.error(e);
+            const saved = localStorage.getItem('local_backup');
+            boxes = saved ? JSON.parse(saved) : generateBoxes();
+            render();
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
         }
+    }
 
-        // 2. Cloud Sync Functions
-        async function loadData() {
-            try {
-                const res = await fetch(`${DB_URL}/savings/${syncKey}.json`);
-                const data = await res.json();
-                boxes = data || generateBoxes();
-                document.getElementById('cloud-indicator').style.color = "#10b981";
-                document.getElementById('cloud-indicator').innerText = "● Cloud Connected";
-                render();
-            } catch (e) {
-                console.error(e);
-                alert("Cloud error. Working offline.");
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
+    async function saveData() {
+        localStorage.setItem('local_backup', JSON.stringify(boxes));
+        document.getElementById('status-indicator').innerText = "● Saving...";
+        try {
+            await fetch(`${DB_URL}/savings/${syncKey}.json`, {
+                method: 'PUT',
+                body: JSON.stringify(boxes)
+            });
+            document.getElementById('status-indicator').innerText = "● Online";
+        } catch (e) {
+            document.getElementById('status-indicator').innerText = "● Sync Error";
         }
+    }
 
-        async function saveData() {
-            document.getElementById('cloud-indicator').innerText = "● Saving...";
-            try {
-                await fetch(`${DB_URL}/savings/${syncKey}.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(boxes)
-                });
-                document.getElementById('cloud-indicator').innerText = "● Cloud Synced";
-            } catch (e) {
-                document.getElementById('cloud-indicator').innerText = "● Sync Error";
-            }
-        }
+    function formatLAK(n) { return new Intl.NumberFormat('lo-LA').format(n) + ' ₭'; }
 
-        // 3. UI Functions
-        function formatLAK(n) { return new Intl.NumberFormat('lo-LA').format(n) + ' ₭'; }
+    function render() {
+        const totalSaved = boxes.reduce((sum, b) => b.checked ? sum + b.amount : sum, 0);
+        const progress = (totalSaved / TARGET) * 100;
+        
+        // Schedule Math
+        const today = new Date();
+        const daysPassed = Math.max(1, Math.ceil((today - START_DATE) / (1000 * 60 * 60 * 24)));
+        const expectedSavings = dailyTarget * daysPassed;
+        const diff = totalSaved - expectedSavings;
+        const isBehind = diff < 0;
 
-        function render() {
-            const totalSaved = boxes.reduce((sum, b) => b.checked ? sum + b.amount : sum, 0);
-            const progress = (totalSaved / TARGET) * 100;
+        // 1. Render Stats Cards
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card green"><div class="stat-label">Total Saved</div><div class="stat-value">${formatLAK(totalSaved)}</div></div>
+            <div class="stat-card blue"><div class="stat-label">Remaining</div><div class="stat-value">${formatLAK(TARGET - totalSaved)}</div></div>
+            <div class="stat-card purple">
+                <div class="stat-label">Progress</div><div class="stat-value">${progress.toFixed(1)}%</div>
+            </div>
+            <div class="stat-card ${isBehind ? 'red' : 'green'}">
+                <div class="stat-label">Status</div><div class="stat-value">${isBehind ? 'Behind' : 'On Track'}</div>
+            </div>
+        `;
 
-            // Render Stats
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card green"><div class="stat-value">${formatLAK(totalSaved)}</div><div>Total Saved</div></div>
-                <div class="stat-card blue"><div class="stat-value">${formatLAK(TARGET - totalSaved)}</div><div>Remaining</div></div>
-                <div class="stat-card purple">
-                    <div class="stat-value">${progress.toFixed(1)}%</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+        // 2. Render Alert Box
+        const alertBox = document.getElementById('alertBox');
+        if (totalSaved > 0) {
+            alertBox.innerHTML = `
+                <div class="alert ${isBehind ? 'warning' : 'success'}">
+                    <span>${isBehind ? '⚠️' : '✅'}</span>
+                    <div>
+                        <strong>${isBehind ? 'Behind Schedule' : 'Great Job!'}</strong><br>
+                        <span>${isBehind ? 'Need ' : ''}${formatLAK(Math.abs(diff))} ${isBehind ? 'to catch up' : 'ahead of target'}</span>
+                    </div>
                 </div>
             `;
-
-            // Render Boxes
-            const search = document.getElementById('searchInput').value;
-            document.getElementById('boxesGrid').innerHTML = boxes
-                .filter(b => !search || b.amount.toString().includes(search))
-                .map(b => `
-                    <div class="box ${b.checked ? 'checked' : ''}" onclick="toggleBox(${b.id})">
-                        <div style="font-size:10px">Day ${b.id}</div>
-                        <div class="box-amount">${b.amount / 1000}k</div>
-                    </div>
-                `).join('');
         }
 
-        function toggleBox(id) {
-            const box = boxes.find(b => b.id === id);
-            box.checked = !box.checked;
+        // 3. Render Boxes
+        const search = document.getElementById('searchInput').value;
+        document.getElementById('boxesGrid').innerHTML = boxes
+            .filter(b => !search || b.amount.toString().includes(search))
+            .map(b => `
+                <div class="box ${b.checked ? 'checked' : ''}" onclick="toggleBox(${b.id})">
+                    <div class="box-number">Day ${b.id}</div>
+                    <div class="box-amount">${formatLAK(b.amount).replace(' ₭','')}</div>
+                    ${b.checked ? '<div style="position:absolute; bottom:2px; right:2px; font-size:10px;">✓</div>' : ''}
+                </div>
+            `).join('');
+
+        // 4. Render Summary Grid
+        const checkedCount = boxes.filter(b => b.checked).length;
+        document.getElementById('summaryGrid').innerHTML = `
+            <div class="summary-card"><div class="summary-label">Days</div><div class="summary-value">365</div></div>
+            <div class="summary-card"><div class="summary-label">Saved</div><div class="summary-value">${checkedCount}</div></div>
+            <div class="summary-card"><div class="summary-label">Left</div><div class="summary-value">${365 - checkedCount}</div></div>
+            <div class="summary-card"><div class="summary-label">Days Left</div><div class="summary-value">${Math.max(0, 365 - daysPassed)}</div></div>
+        `;
+    }
+
+    function toggleBox(id) {
+        const box = boxes.find(b => b.id === id);
+        box.checked = !box.checked;
+        render();
+        saveData();
+    }
+
+    function resetAll() {
+        if(confirm("Are you sure? This will delete all your cloud data!")) {
+            boxes = generateBoxes();
             render();
             saveData();
         }
+    }
 
-        function resetAll() {
-            if(confirm("Delete all data?")) {
-                boxes = generateBoxes();
-                render();
-                saveData();
-            }
-        }
+    function exportCSV() {
+        let csv = "Day,Amount,Status\n" + boxes.map(b => `${b.id},${b.amount},${b.checked ? 'Paid' : 'Unpaid'}`).join("\n");
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = window.URL.createObjectURL(blob);
+        a.download = 'savings_data.csv'; a.click();
+    }
 
-        function exportCSV() {
-            let csv = "Day,Amount,Status\n" + boxes.map(b => `${b.id},${b.amount},${b.checked}`).join("\n");
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'savings.csv'; a.click();
-        }
+    document.getElementById('searchInput').addEventListener('input', render);
+    loadData();
+</script>
 
-        document.getElementById('searchInput').addEventListener('input', render);
-
-        // Start
-        loadData();
-    </script>
 </body>
 </html>
